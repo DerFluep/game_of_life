@@ -8,8 +8,8 @@ use sdl3::rect::Rect;
 use sdl3::render::Canvas;
 use sdl3::video::Window;
 
-const WIDTH: usize = 500;
-const HEIGHT: usize = 500;
+const WIDTH: usize = 1000;
+const HEIGHT: usize = 1000;
 const WINDOW_WIDTH: usize = 500;
 const WINDOW_HEIGHT: usize = 500;
 
@@ -117,7 +117,7 @@ fn main() {
     canvas.clear();
     canvas.present();
 
-    let mut cellsize = 10;
+    let mut cellsize = 11;
     let mut x = WIDTH / 2;
     let mut y = HEIGHT / 2;
     let mut game = Game::new();
@@ -133,27 +133,51 @@ fn main() {
                 Event::KeyDown {
                     keycode: Some(Keycode::Equals),
                     ..
-                } => cellsize += 2,
+                } => {
+                    if cellsize < 20 {
+                        cellsize += 2
+                    }
+                }
                 Event::KeyDown {
                     keycode: Some(Keycode::Minus),
                     ..
-                } => cellsize -= 2,
+                } => {
+                    if cellsize > 2 {
+                        cellsize -= 2
+                    }
+                }
                 Event::KeyDown {
                     keycode: Some(Keycode::H),
                     ..
-                } => x -= 2,
+                } => {
+                    if x > 2 {
+                        x -= 2
+                    }
+                }
                 Event::KeyDown {
                     keycode: Some(Keycode::L),
                     ..
-                } => x += 2,
+                } => {
+                    if x < WIDTH - WINDOW_WIDTH / cellsize {
+                        x += 2
+                    }
+                }
                 Event::KeyDown {
                     keycode: Some(Keycode::J),
                     ..
-                } => y += 2,
+                } => {
+                    if y < HEIGHT - WINDOW_HEIGHT / cellsize {
+                        y += 2
+                    }
+                }
                 Event::KeyDown {
                     keycode: Some(Keycode::K),
                     ..
-                } => y -= 2,
+                } => {
+                    if y > 2 {
+                        y -= 2
+                    }
+                }
                 _ => {}
             }
         }

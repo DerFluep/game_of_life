@@ -30,6 +30,7 @@ impl Game {
     }
 
     fn update(&mut self) {
+        let mut tmp_field = vec![vec![false; WIDTH]; HEIGHT];
         let directions = [
             (-1, -1),
             (-1, 0),
@@ -58,18 +59,23 @@ impl Game {
                     }
                 }
 
+                if self.field[y][x] {
+                    tmp_field[y][x] = true;
+                }
                 // Game rules
                 // Rule 1: if fewer than 2 neighbors, the cell dies
                 // Rule 3: if more than 3 neighbors, the cell dies by overpopulation
                 if !(2..3).contains(&count) {
-                    self.field[y][x] = false;
+                    tmp_field[y][x] = false;
                 }
                 // Rule 4: if exactly 3 neighbors, the cell reanimates
                 if count == 3 {
-                    self.field[y][x] = true;
+                    tmp_field[y][x] = true;
                 }
             }
         }
+        self.field.clear();
+        self.field.append(&mut tmp_field);
     }
 
     fn draw(&self, x_off: usize, y_off: usize, cellsize: usize, canvas: &mut Canvas<Window>) {

@@ -10,7 +10,7 @@ use sdl3::video::Window;
 
 const WIDTH: usize = 1000;
 const HEIGHT: usize = 1000;
-const WINDOW_WIDTH: usize = 500;
+const WINDOW_WIDTH: usize = 1000;
 const WINDOW_HEIGHT: usize = 500;
 
 struct Game {
@@ -79,8 +79,8 @@ impl Game {
     }
 
     fn draw(&self, x_off: usize, y_off: usize, cellsize: usize, canvas: &mut Canvas<Window>) {
-        for y in 0..WINDOW_WIDTH / cellsize {
-            for x in 0..WINDOW_HEIGHT / cellsize {
+        for y in 0..WINDOW_HEIGHT / cellsize {
+            for x in 0..WINDOW_WIDTH / cellsize {
                 if self.field[y + y_off - (WINDOW_HEIGHT / cellsize) / 2]
                     [x + x_off - (WINDOW_WIDTH / cellsize) / 2]
                 {
@@ -119,7 +119,7 @@ fn main() {
     canvas.clear();
     canvas.present();
 
-    let mut cellsize = 11;
+    let mut cellsize = 5;
     let mut x = WIDTH / 2;
     let mut y = HEIGHT / 2;
     let mut run = false;

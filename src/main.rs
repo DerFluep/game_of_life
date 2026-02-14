@@ -122,6 +122,7 @@ fn main() {
     let mut cellsize = 11;
     let mut x = WIDTH / 2;
     let mut y = HEIGHT / 2;
+    let mut run = false;
     let mut game = Game::new();
 
     'running: loop {
@@ -180,11 +181,17 @@ fn main() {
                         y -= 2
                     }
                 }
+                Event::KeyDown {
+                    keycode: Some(Keycode::Space),
+                    ..
+                } => run = !run,
                 _ => {}
             }
         }
 
-        game.update();
+        if run {
+            game.update();
+        }
         game.draw(x, y, cellsize, &mut canvas);
 
         ::std::thread::sleep(Duration::from_millis(100));

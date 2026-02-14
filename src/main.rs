@@ -81,7 +81,9 @@ impl Game {
     fn draw(&self, x_off: usize, y_off: usize, cellsize: usize, canvas: &mut Canvas<Window>) {
         for y in 0..WINDOW_WIDTH / cellsize {
             for x in 0..WINDOW_HEIGHT / cellsize {
-                if self.field[y + y_off][x + x_off] {
+                if self.field[y + y_off - (WINDOW_HEIGHT / cellsize) / 2]
+                    [x + x_off - (WINDOW_WIDTH / cellsize) / 2]
+                {
                     canvas.set_draw_color(Color::RGB(255, 255, 255));
                 } else {
                     canvas.set_draw_color(Color::RGB(0, 0, 0));
@@ -135,22 +137,22 @@ fn main() {
                     ..
                 } => {
                     if cellsize < 20 {
-                        cellsize += 2
+                        cellsize += 1
                     }
                 }
                 Event::KeyDown {
                     keycode: Some(Keycode::Minus),
                     ..
                 } => {
-                    if cellsize > 2 {
-                        cellsize -= 2
+                    if cellsize > 1 {
+                        cellsize -= 1
                     }
                 }
                 Event::KeyDown {
                     keycode: Some(Keycode::H),
                     ..
                 } => {
-                    if x > 2 {
+                    if x > WINDOW_WIDTH / cellsize / 2 + 2 {
                         x -= 2
                     }
                 }
@@ -158,7 +160,7 @@ fn main() {
                     keycode: Some(Keycode::L),
                     ..
                 } => {
-                    if x < WIDTH - WINDOW_WIDTH / cellsize {
+                    if x < WIDTH - WINDOW_WIDTH / cellsize / 2 {
                         x += 2
                     }
                 }
@@ -166,7 +168,7 @@ fn main() {
                     keycode: Some(Keycode::J),
                     ..
                 } => {
-                    if y < HEIGHT - WINDOW_HEIGHT / cellsize {
+                    if y < HEIGHT - WINDOW_HEIGHT / cellsize / 2 {
                         y += 2
                     }
                 }
@@ -174,7 +176,7 @@ fn main() {
                     keycode: Some(Keycode::K),
                     ..
                 } => {
-                    if y > 2 {
+                    if y > WINDOW_HEIGHT / cellsize / 2 + 2 {
                         y -= 2
                     }
                 }

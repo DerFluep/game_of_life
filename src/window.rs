@@ -58,7 +58,11 @@ impl Viewport {
                     ..
                 } => {
                     if self.cellsize < 20 {
-                        self.cellsize += 1
+                        let x_middle = self.x_off + WINDOW_WIDTH / 2 / self.cellsize;
+                        let y_middle = self.y_off + WINDOW_HEIGHT / 2 / self.cellsize;
+                        self.cellsize += 1;
+                        self.x_off = x_middle - WINDOW_WIDTH / 2 / self.cellsize;
+                        self.y_off = y_middle - WINDOW_HEIGHT / 2 / self.cellsize;
                     }
                 }
                 Event::KeyDown {
@@ -68,8 +72,11 @@ impl Viewport {
                     if self.cellsize > 1 {
                         // FIX: only zoom out if far enough to the left and top.
                         // Else there could be an out of bounds crash
-                        // TODO: Zoom to the middle of the screen
-                        self.cellsize -= 1
+                        let x_middle = self.x_off + WINDOW_WIDTH / 2 / self.cellsize;
+                        let y_middle = self.y_off + WINDOW_HEIGHT / 2 / self.cellsize;
+                        self.cellsize -= 1;
+                        self.x_off = x_middle - WINDOW_WIDTH / 2 / self.cellsize;
+                        self.y_off = y_middle - WINDOW_HEIGHT / 2 / self.cellsize;
                     }
                 }
                 Event::KeyDown {

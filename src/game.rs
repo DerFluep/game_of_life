@@ -1,40 +1,40 @@
-use std::time::Duration;
+use std::{
+    sync::{
+        Arc, Mutex,
+        atomic::{AtomicBool, Ordering},
+    },
+    thread::{self, JoinHandle},
+    time::Duration,
+};
 
 use rand::Rng;
-use sdl3::event::Event;
-use sdl3::keyboard::Keycode;
-use sdl3::pixels::Color;
-use sdl3::rect::Rect;
-use sdl3::render::Canvas;
-use sdl3::video::Window;
+
+use crate::{HEIGHT, WIDTH};
+
 pub struct Game {
-    field: Vec<Vec<bool>>,
-    width: usize,
-    height: usize,
-    window_width: usize,
-    window_height: usize,
+    field: Arc<Mutex<Vec<Vec<bool>>>>,
 }
 
 impl Game {
-    pub fn new(width: usize, height: usize, window_width: usize, window_height: usize) -> Game {
+    pub fn new() -> Game {
         let mut rng = rand::rng();
-        let mut field = vec![vec![false; width]; height];
+        let mut field = vec![vec![false; WIDTH]; HEIGHT];
         for y in field.iter_mut() {
             for cell in y.iter_mut() {
                 *cell = rng.random_bool(0.1);
             }
         }
         Game {
-            field,
-            width,
-            height,
-            window_width,
-            window_height,
+            field: Arc::new(Mutex::new(field)),
         }
     }
 
-    fn update(&mut self) {
-        let mut tmp_field = vec![vec![false; self.width]; self.height];
+    pub fn get_field(&self) -> Arc<Mutex<Vec<Vec<bool>>>> {
+        Arc::clone(&self.field)
+    }
+
+    fn update(&self) {
+        let mut tmp_field = vec![vec![false; WIDTH]; HEIGHT];
         let directions = [
             (-1, -1),
             (-1, 0),
@@ -45,6 +45,7 @@ impl Game {
             (1, 0),
             (1, 1),
         ];
+        let mut field = self.field.lock().unwrap();
         for (y, row) in tmp_field.iter_mut().enumerate() {
             for (x, cell) in row.iter_mut().enumerate() {
                 // count surrounding cells
@@ -54,16 +55,16 @@ impl Game {
                     let ny = y as isize + dy;
                     let nx = x as isize + dx;
                     if ny >= 0
-                        && ny < self.height as isize
+                        && ny < HEIGHT as isize
                         && nx >= 0
-                        && nx < self.width as isize
-                        && self.field[ny as usize][nx as usize]
+                        && nx < WIDTH as isize
+                        && field[ny as usize][nx as usize]
                     {
                         count += 1;
                     }
                 }
 
-                if self.field[y][x] {
+                if field[y][x] {
                     *cell = true;
                 }
                 // Game rules
@@ -78,129 +79,23 @@ impl Game {
                 }
             }
         }
-        self.field.clear();
-        self.field.append(&mut tmp_field);
+        field.clear();
+        field.append(&mut tmp_field);
+        drop(field);
     }
 
-    fn draw(&self, x_off: usize, y_off: usize, cellsize: usize, canvas: &mut Canvas<Window>) {
-        for y in 0..self.window_height / cellsize {
-            for x in 0..self.window_width / cellsize {
-                if self.field[y + y_off - (self.window_height / cellsize) / 2]
-                    [x + x_off - (self.window_width / cellsize) / 2]
-                {
-                    canvas.set_draw_color(Color::RGB(255, 255, 255));
-                } else {
-                    canvas.set_draw_color(Color::RGB(0, 0, 0));
+    pub fn run(self, run: Arc<AtomicBool>, quit: Arc<AtomicBool>) -> JoinHandle<()> {
+        thread::spawn(move || {
+            let game = self;
+            'running: loop {
+                if quit.load(Ordering::Relaxed) {
+                    break 'running;
                 }
-                canvas
-                    .fill_rect(Rect::new(
-                        (x * cellsize) as i32,
-                        (y * cellsize) as i32,
-                        cellsize as u32,
-                        cellsize as u32,
-                    ))
-                    .unwrap();
-            }
-        }
-        canvas.present();
-    }
-
-    pub fn run(&mut self) {
-        let sdl_context = sdl3::init().unwrap();
-        let video_subsystem = sdl_context.video().unwrap();
-
-        let window = video_subsystem
-            .window(
-                "Game of life",
-                self.window_width as u32,
-                self.window_height as u32,
-            )
-            .position_centered()
-            .build()
-            .unwrap();
-
-        let mut canvas = window.into_canvas();
-        let mut event_pump = sdl_context.event_pump().unwrap();
-
-        canvas.set_draw_color(Color::RGB(0, 0, 0));
-        canvas.clear();
-        canvas.present();
-
-        let mut cellsize = 5;
-        let mut x = self.width / 2;
-        let mut y = self.height / 2;
-        let mut run = false;
-
-        'running: loop {
-            for event in event_pump.poll_iter() {
-                match event {
-                    Event::Quit { .. }
-                    | Event::KeyDown {
-                        keycode: Some(Keycode::Escape),
-                        ..
-                    } => break 'running,
-                    Event::KeyDown {
-                        keycode: Some(Keycode::Equals),
-                        ..
-                    } => {
-                        if cellsize < 20 {
-                            cellsize += 1
-                        }
-                    }
-                    Event::KeyDown {
-                        keycode: Some(Keycode::Minus),
-                        ..
-                    } => {
-                        if cellsize > 1 {
-                            cellsize -= 1
-                        }
-                    }
-                    Event::KeyDown {
-                        keycode: Some(Keycode::H),
-                        ..
-                    } => {
-                        if x > self.window_width / cellsize / 2 + 2 {
-                            x -= 2
-                        }
-                    }
-                    Event::KeyDown {
-                        keycode: Some(Keycode::L),
-                        ..
-                    } => {
-                        if x < self.width - self.window_width / cellsize / 2 {
-                            x += 2
-                        }
-                    }
-                    Event::KeyDown {
-                        keycode: Some(Keycode::J),
-                        ..
-                    } => {
-                        if y < self.height - self.window_height / cellsize / 2 {
-                            y += 2
-                        }
-                    }
-                    Event::KeyDown {
-                        keycode: Some(Keycode::K),
-                        ..
-                    } => {
-                        if y > self.window_height / cellsize / 2 + 2 {
-                            y -= 2
-                        }
-                    }
-                    Event::KeyDown {
-                        keycode: Some(Keycode::Space),
-                        ..
-                    } => run = !run,
-                    _ => {}
+                if run.load(Ordering::Relaxed) {
+                    game.update();
                 }
+                ::std::thread::sleep(Duration::from_millis(100));
             }
-
-            if run {
-                self.update();
-            }
-            self.draw(x, y, cellsize, &mut canvas);
-
-            ::std::thread::sleep(Duration::from_millis(100));
-        }
+        })
     }
 }

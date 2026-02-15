@@ -125,6 +125,10 @@ impl Viewport {
                 quit.store(true, Ordering::Relaxed);
                 break 'running;
             }
+
+            self.canvas.set_draw_color(Color::RGB(0, 0, 0));
+            self.canvas.clear();
+
             let field = field.lock().unwrap();
             for y in 0..WINDOW_HEIGHT / self.cellsize {
                 for x in 0..WINDOW_WIDTH / self.cellsize {

@@ -78,7 +78,7 @@ impl Viewport {
                     keycode: Some(Keycode::L),
                     ..
                 } => {
-                    if self.x_off < WIDTH - WINDOW_WIDTH / self.cellsize / 2 {
+                    if self.x_off < WIDTH - WINDOW_WIDTH / self.cellsize / 2 - 2 {
                         self.x_off += 2
                     }
                 }
@@ -86,7 +86,7 @@ impl Viewport {
                     keycode: Some(Keycode::J),
                     ..
                 } => {
-                    if self.y_off < HEIGHT - WINDOW_HEIGHT / self.cellsize / 2 {
+                    if self.y_off < HEIGHT - WINDOW_HEIGHT / self.cellsize / 2 - 2 {
                         self.y_off += 2
                     }
                 }

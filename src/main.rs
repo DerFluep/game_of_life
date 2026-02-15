@@ -10,7 +10,7 @@ use sdl3::video::Window;
 
 const WIDTH: usize = 1000;
 const HEIGHT: usize = 1000;
-const WINDOW_WIDTH: usize = 1000;
+const WINDOW_WIDTH: usize = 500;
 const WINDOW_HEIGHT: usize = 500;
 
 struct Game {
@@ -41,8 +41,8 @@ impl Game {
             (1, 0),
             (1, 1),
         ];
-        for y in 0..HEIGHT {
-            for x in 0..WIDTH {
+        for (y, row) in tmp_field.iter_mut().enumerate() {
+            for (x, cell) in row.iter_mut().enumerate() {
                 // count surrounding cells
                 let mut count = 0;
 
@@ -60,17 +60,17 @@ impl Game {
                 }
 
                 if self.field[y][x] {
-                    tmp_field[y][x] = true;
+                    *cell = true;
                 }
                 // Game rules
                 // Rule 1: if fewer than 2 neighbors, the cell dies
                 // Rule 3: if more than 3 neighbors, the cell dies by overpopulation
                 if !(2..3).contains(&count) {
-                    tmp_field[y][x] = false;
+                    *cell = false;
                 }
                 // Rule 4: if exactly 3 neighbors, the cell reanimates
                 if count == 3 {
-                    tmp_field[y][x] = true;
+                    *cell = true;
                 }
             }
         }

@@ -6,8 +6,10 @@ Currently the field is generated randomly.
 To start the simulation, simply press Space.
 You can navigate using the "H J K L" keys.
 Zooming is done with "-" and "=".
+Clicking on a field toggles it.
 
 ## TODO
 
-- [ ] load image files for field creation
-- [ ] draw on window for field creation
+- [x] draw on window with the mouse
+- [ ] load presets
+- [ ] save presets

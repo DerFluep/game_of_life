@@ -9,10 +9,14 @@ use crate::window::Viewport;
 
 const WIDTH: usize = 1000;
 const HEIGHT: usize = 1000;
-const WINDOW_WIDTH: usize = 500;
-const WINDOW_HEIGHT: usize = 500;
+const WINDOW_WIDTH: usize = 1000;
+const WINDOW_HEIGHT: usize = 1000;
 
 fn main() {
+    if WINDOW_WIDTH > WIDTH || WINDOW_HEIGHT > HEIGHT {
+        panic!("Window size can't be bigger than game size!");
+    }
+
     let quit = Arc::new(AtomicBool::new(false));
     let run = Arc::new(AtomicBool::new(false));
 

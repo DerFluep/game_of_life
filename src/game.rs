@@ -1,3 +1,4 @@
+use ::std::time::Instant;
 use std::{
     sync::{
         Arc, Mutex,
@@ -87,14 +88,23 @@ impl Game {
     pub fn run(self, run: Arc<AtomicBool>, quit: Arc<AtomicBool>) -> JoinHandle<()> {
         thread::spawn(move || {
             let game = self;
+            let interval = Duration::from_millis(250);
+
             'running: loop {
+                let before = Instant::now();
+
                 if quit.load(Ordering::Relaxed) {
                     break 'running;
                 }
                 if run.load(Ordering::Relaxed) {
                     game.update();
                 }
-                ::std::thread::sleep(Duration::from_millis(100));
+
+                let elapsed = Instant::now() - before;
+                if elapsed < interval {
+                    ::std::thread::sleep(interval - elapsed);
+                }
+                // dbg!(Instant::now() - before);
             }
         })
     }

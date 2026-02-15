@@ -1,6 +1,6 @@
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use sdl3::EventPump;
 use sdl3::event::Event;
@@ -117,7 +117,10 @@ impl Viewport {
         run: Arc<AtomicBool>,
         quit: Arc<AtomicBool>,
     ) {
+        let interval = Duration::from_micros(1000000 / 60);
         'running: loop {
+            let before = Instant::now();
+
             if self.get_input(&run) {
                 quit.store(true, Ordering::Relaxed);
                 break 'running;
@@ -143,7 +146,11 @@ impl Viewport {
                 }
             }
             self.canvas.present();
-            ::std::thread::sleep(Duration::from_millis(100));
+
+            let elapsed = Instant::now() - before;
+            if elapsed < interval {
+                ::std::thread::sleep(interval - elapsed);
+            }
         }
     }
 }

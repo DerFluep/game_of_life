@@ -147,6 +147,18 @@ impl Viewport {
                             self.cellsize as u32,
                         ))
                         .unwrap();
+
+                    if self.cellsize > 6 {
+                        self.canvas.set_draw_color(Color::RGB(128, 128, 128));
+                        self.canvas
+                            .draw_rect(Rect::new(
+                                (x * self.cellsize) as i32,
+                                (y * self.cellsize) as i32,
+                                self.cellsize as u32,
+                                self.cellsize as u32,
+                            ))
+                            .unwrap();
+                    }
                 }
             }
             self.canvas.present();
